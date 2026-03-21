@@ -57,22 +57,25 @@ def rota_analisar():
 def rota_adicionar():
     payload = request.json or {}
     palavra = (payload.get("palavra") or "").strip().lower()
-    tipo = payload.get("tipo")  # "positiva" ou "negativa"
-    if not palavra or tipo not in ("positiva", "negativa"):
+    tipo = payload.get("tipo")  # "positiva", "negativa" ou "intensidade"
+    if not palavra or tipo not in ("positiva", "negativa", "intensidade"):
         return jsonify({"error": "Dados inválidos"}), 400
 
     if tipo == "positiva":
-        if palavra not in palavras_positivas:
-            palavras_positivas.append(palavra)
-            return jsonify({"ok": True, "mensagem": f"Palavra '{palavra}' adicionada às POSITIVAS."})
-        else:
-            return jsonify({"ok": False, "mensagem": "Palavra já existe nas positivas."}), 409
+        target = palavras_positivas
+        label = "POSITIVAS"
+    elif tipo == "negativa":
+        target = palavras_negativas
+        label = "NEGATIVAS"
     else:
-        if palavra not in palavras_negativas:
-            palavras_negativas.append(palavra)
-            return jsonify({"ok": True, "mensagem": f"Palavra '{palavra}' adicionada às NEGATIVAS."})
-        else:
-            return jsonify({"ok": False, "mensagem": "Palavra já existe nas negativas."}), 409
+        target = palavras_intensidade
+        label = "INTENSIDADE"
+
+    if palavra in target:
+        return jsonify({"ok": False, "mensagem": f"Palavra já existe em {label}."}), 409
+
+    target.append(palavra)
+    return jsonify({"ok": True, "mensagem": f"Palavra '{palavra}' adicionada às {label}."})
 
 @app.route("/estatisticas", methods=["GET"])
 def rota_estatisticas():
