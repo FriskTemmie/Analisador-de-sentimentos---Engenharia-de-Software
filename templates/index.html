@@ -66,10 +66,13 @@ async function analisar(){
   let text = "";
   text += "Frase analisada: \"" + j.frase + "\"\n\n";
   text += "Positivas encontradas: " + j.pos_count + "\n";
+  text += "Positivas totais: " + j.pos_total + "\n";
   text += "Negativas encontradas: " + j.neg_count + "\n";
+  text += "Negativas totais: " + j.neg_total + "\n";
   text += "Palavras de intensidade: " + j.intens_count + "\n\n";
   if(j.pos_list && j.pos_list.length) text += "👍 Positivas: " + j.pos_list.join(", ") + "\n";
-  if(j.neg_list && j.neg_list.length) text += "👎 Negativas: " + j.neg_list.join(", ") + "\n\n";
+  if(j.neg_list && j.neg_list.length) text += "👎 Negativas: " + j.neg_list.join(", ") + "\n";
+  if(j.neg_list && j.intens_list.length) text += "🤏 Intensidade: " + j.intens_list.join(", ") + "\n";
   text += "SENTIMENTO: " + j.sentimento.toUpperCase();
   saida.innerHTML = '<div class="result">'+text+'</div>';
 }
