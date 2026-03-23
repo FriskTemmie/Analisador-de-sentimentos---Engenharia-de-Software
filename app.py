@@ -4,7 +4,7 @@ import re
 
 app = Flask(__name__)
 
-# Dicionários iniciais (exemplo)
+# Dicionário inicial
 palavras_positivas = ["feliz", "alegre", "ótimo", "excelente", "maravilhoso", "bom", "amor", "adorar", "incrível", "fantástico", "perfeito", "legal", "bacana", "sucesso", "vitória", "paz", "amizade", "sorrir", "esperança", "lindo", "bonito", "agradável", "divertido", "animado", "satisfeito", "grato"]
 
 palavras_negativas = ["triste", "ruim", "péssimo", "horrível", "terrível", "ódio", "odiar", "chorar", "fracasso", "derrota", "medo", "raiva", "feio", "chato", "desagradável", "entediado", "frustrado", "decepcionado", "cansado", "preocupado", "ansioso", "difícil", "problema", "mal", "infeliz"]
@@ -12,36 +12,55 @@ palavras_negativas = ["triste", "ruim", "péssimo", "horrível", "terrível", "�
 palavras_intensidade = ["muito", "muita", "extremamente", "super", "demasiado", "demasiada", "abundantemente"]
 
 def analisar_sentimento(frase):
-    # normaliza
     texto = frase.lower()
-    # token simples
     tokens = re.findall(r"\w+", texto, flags=re.UNICODE)
 
     pos_found = []
+    pos_total = 0
     neg_found = []
+    neg_total = 0
     intens_found = []
+    intens_mult = 0
+    pointer = False
 
     for i, t in enumerate(tokens):
+        if pointer:
+            if t in palavras_positivas:
+                pos_total += intens_mult
+                intens_mult = 0
+                # print(f'pos = {pos_total}')
+            if t in palavras_negativas:
+                neg_total += intens_mult
+                intens_mult = 0
+                # print(f'neg {neg_total}')
+            pointer = False
+
         if t in palavras_positivas:
             pos_found.append(t)
         if t in palavras_negativas:
             neg_found.append(t)
         if t in palavras_intensidade:
             intens_found.append(t)
+            pointer = True
+            intens_mult += 1
 
     pos_count = len(pos_found)
+    pos_total += len(pos_found)
     neg_count = len(neg_found)
+    neg_total += len(neg_found)
     intens_count = len(intens_found)
 
     return {
         "frase": frase,
         "pos_count": pos_count,
+        "pos_total": pos_total,
         "neg_count": neg_count,
+        "neg_total": neg_total,
         "intens_count": intens_count,
         "pos_list": pos_found,
         "neg_list": neg_found,
         "intens_list": intens_found,
-        "sentimento": ("positivo" if pos_count>neg_count else "negativo" if neg_count>pos_count else "neutro")
+        "sentimento": ("positivo" if pos_total > neg_total else "negativo" if neg_total > pos_total else "neutro")
     }
 
 @app.route("/analisar", methods=["POST"])
