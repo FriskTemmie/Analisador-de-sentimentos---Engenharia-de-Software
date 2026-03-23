@@ -27,12 +27,12 @@ def analisar_sentimento(frase):
         if pointer:
             if t in palavras_positivas:
                 pos_total += intens_mult
-                intens_mult = 0
                 # print(f'pos = {pos_total}')
             if t in palavras_negativas:
                 neg_total += intens_mult
-                intens_mult = 0
                 # print(f'neg {neg_total}')
+            if t not in palavras_intensidade:
+                intens_mult = 0
             pointer = False
 
         if t in palavras_positivas:
