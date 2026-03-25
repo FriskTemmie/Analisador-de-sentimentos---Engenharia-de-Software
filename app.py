@@ -11,8 +11,8 @@ palavras_negativas = ["triste", "ruim", "péssimo", "horrível", "terrível", "�
 
 palavras_intensidade = ["muito", "muita", "extremamente", "super", "demasiado", "demasiada", "abundantemente"]
 
-def analisar_sentimento(frase):
-    texto = frase.lower()
+def analisar_sentimento(texto):
+    texto = texto.lower()
     tokens = re.findall(r"\w+", texto, flags=re.UNICODE)
 
     pos_found = []
@@ -51,7 +51,7 @@ def analisar_sentimento(frase):
     intens_count = len(intens_found)
 
     return {
-        "frase": frase,
+        "texto": texto,
         "pos_count": pos_count,
         "pos_total": pos_total,
         "neg_count": neg_count,
@@ -66,10 +66,10 @@ def analisar_sentimento(frase):
 @app.route("/analisar", methods=["POST"])
 def rota_analisar():
     payload = request.json or {}
-    frase = payload.get("frase", "")
-    if not frase.strip():
-        return jsonify({"error": "Frase vazia"}), 400
-    resultado = analisar_sentimento(frase)
+    texto = payload.get("texto", "")
+    if not texto.strip():
+        return jsonify({"error": "Texto vazio"}), 400
+    resultado = analisar_sentimento(texto)
     return jsonify(resultado)
 
 @app.route("/adicionar", methods=["POST"])
