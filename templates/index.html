@@ -19,8 +19,8 @@
   <h1>Analisador de Sentimentos</h1>
 
   <div class="card">
-    <h3>1) Analisar frase</h3>
-    <textarea id="frase" placeholder="Digite a frase aqui..."></textarea>
+    <h3>1) Analisar texto</h3>
+    <textarea id="texto" placeholder="Digite o texto aqui..."></textarea>
     <div style="margin-top:8px"><button id="btnAnalisar">Analisar</button></div>
     <div id="saida" style="margin-top:12px"></div>
   </div>
@@ -49,13 +49,13 @@
 const base = ""; // Se frontend servido pelo mesmo host do Flask, deixar vazio
 
 async function analisar(){
-  const frase = document.getElementById("frase").value;
+  const texto = document.getElementById("texto").value;
   const saida = document.getElementById("saida");
   saida.textContent = "Analisando...";
   const res = await fetch(base + "/analisar", {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({frase})
+    body: JSON.stringify({texto})
   });
   if(!res.ok){
     const e = await res.json().catch(()=>({error:"Erro"}));
@@ -64,7 +64,7 @@ async function analisar(){
   }
   const j = await res.json();
   let text = "";
-  text += "Frase analisada: \"" + j.frase + "\"\n\n";
+  text += "Texto analisado: \"" + j.texto + "\"\n\n";
   text += "Positivas encontradas: " + j.pos_count + "\n";
   text += "Positivas totais: " + j.pos_total + "\n";
   text += "Negativas encontradas: " + j.neg_count + "\n";
