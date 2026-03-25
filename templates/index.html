@@ -1,169 +1,169 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Analisador de Sentimentos - Web</title>
-  <style>
-    body {
-    font-family: system-ui, Segoe UI, Roboto, Arial;
-    margin: 24px;
-    background: #f7fafc;
-    color: #111
-    }
-    .card {
-    background: #fff;
-    padding: 18px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.08);
-    max-width: 760px;
-    margin-bottom:16px
-    }
-    textarea {
-    width: 100%;
-    height: 80px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 6px
-    }
-    input[type=text] {
-    width: 60%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 6px
-    }
-    button {
-    padding: 8px 12px;
-    border: 0;
-    border-radius: 6px;
-    background: #2563eb;
-    color: #fff;
-    cursor: pointer
-    }
-    .muted {
-    color: #666;
-    font-size: 0.9rem
-    }
-    .result {
-    white-space: pre-wrap;
-    font-family: monospace;
-    background: #f3f4f6;
-    padding: 12px;
-    border-radius: 6px
-    }
-    .row {
-    display: flex;
-    gap: 8px;
-    align-items: center
-    }
-  </style>
-</head>
-<body>
-  <h1>Analisador de Sentimentos</h1>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Analisador de Sentimentos - Web</title>
+    <style>
+      body {
+      font-family: system-ui, Segoe UI, Roboto, Arial;
+      margin: 24px;
+      background: #f7fafc;
+      color: #111
+      }
+      .card {
+      background: #fff;
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+      max-width: 760px;
+      margin-bottom:16px
+      }
+      textarea {
+      width: 100%;
+      height: 80px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px
+      }
+      input[type=text] {
+      width: 60%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px
+      }
+      button {
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer
+      }
+      .muted {
+      color: #666;
+      font-size: 0.9rem
+      }
+      .result {
+      white-space: pre-wrap;
+      font-family: monospace;
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 6px
+      }
+      .row {
+      display: flex;
+      gap: 8px;
+      align-items: center
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Analisador de Sentimentos</h1>
 
-  <div class="card">
-    <h3>1) Analisar texto</h3>
-    <textarea id="texto" placeholder="Digite o texto aqui..."></textarea>
-    <div style="margin-top:8px"><button id="btnAnalisar">Analisar</button></div>
-    <div id="saida" style="margin-top:12px"></div>
-  </div>
-
-  <div class="card">
-    <h3>2) Adicionar palavra ao dicionário</h3>
-    <div class="row">
-      <input id="novaPalavra" type="text" placeholder="Nova palavra (ex: incrível)" />
-      <select id="tipo">
-        <option value="positiva">Positiva</option>
-        <option value="negativa">Negativa</option>
-        <option value="intensidade">Intensidade</option>
-      </select>
-      <button id="btnAdicionar">Adicionar</button>
+    <div class="card">
+      <h3>1) Analisar texto</h3>
+      <textarea id="texto" placeholder="Digite o texto aqui..."></textarea>
+      <div style="margin-top:8px"><button id="btnAnalisar">Analisar</button></div>
+      <div id="saida" style="margin-top:12px"></div>
     </div>
-    <div id="msgAdicionar" style="margin-top:8px" class="muted"></div>
-  </div>
 
-  <div class="card">
-    <h3>3) Estatísticas do dicionário</h3>
-    <button id="btnEstat">Atualizar estatísticas</button>
-    <div id="estatisticas" style="margin-top:12px"></div>
-  </div>
+    <div class="card">
+      <h3>2) Adicionar palavra ao dicionário</h3>
+      <div class="row">
+        <input id="novaPalavra" type="text" placeholder="Nova palavra (ex: incrível)" />
+        <select id="tipo">
+          <option value="positiva">Positiva</option>
+          <option value="negativa">Negativa</option>
+          <option value="intensidade">Intensidade</option>
+        </select>
+        <button id="btnAdicionar">Adicionar</button>
+      </div>
+      <div id="msgAdicionar" style="margin-top:8px" class="muted"></div>
+    </div>
 
-<script>
-const base = ""; // Se frontend servido pelo mesmo host do Flask, deixar vazio
+    <div class="card">
+      <h3>3) Estatísticas do dicionário</h3>
+      <button id="btnEstat">Atualizar estatísticas</button>
+      <div id="estatisticas" style="margin-top:12px"></div>
+    </div>
 
-async function analisar(){
-  const texto = document.getElementById("texto").value;
-  const saida = document.getElementById("saida");
-  saida.textContent = "Analisando...";
-  const res = await fetch(base + "/analisar", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({texto})
-  });
-  if(!res.ok){
-    const e = await res.json().catch(()=>({error:"Erro"}));
-    saida.textContent = "Erro: " + (e.error || e.mensagem || res.statusText);
-    return;
-  }
-  const j = await res.json();
-  let text = "";
-  text += "Texto analisado: \"" + j.texto + "\"\n\n";
-  text += "Positivas encontradas: " + j.pos_count + "\n";
-  text += "Positivas totais: " + j.pos_total + "\n";
-  text += "Negativas encontradas: " + j.neg_count + "\n";
-  text += "Negativas totais: " + j.neg_total + "\n";
-  text += "Palavras de intensidade: " + j.intens_count + "\n\n";
-  if(j.pos_list && j.pos_list.length) text += "👍 Positivas: " + j.pos_list.join(", ") + "\n";
-  if(j.neg_list && j.neg_list.length) text += "👎 Negativas: " + j.neg_list.join(", ") + "\n";
-  if(j.neg_list && j.intens_list.length) text += "🤏 Intensidade: " + j.intens_list.join(", ") + "\n";
-  text += "SENTIMENTO: " + j.sentimento.toUpperCase();
-  saida.innerHTML = '<div class="result">'+text+'</div>';
-}
+    <script>
+    const base = ""; // Se frontend servido pelo mesmo host do Flask, deixar vazio
 
-async function adicionar(){
-  const palavra = document.getElementById("novaPalavra").value.trim();
-  const tipo = document.getElementById("tipo").value;
-  const msg = document.getElementById("msgAdicionar");
-  if(!palavra){
-    msg.textContent = "Digite uma palavra.";
-    return;
-  }
-  msg.textContent = "Enviando...";
-  const res = await fetch(base + "/adicionar", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({palavra, tipo})
-  });
-  const j = await res.json().catch(()=>({mensagem:"Resposta inválida"}));
-  if(res.ok){
-    msg.textContent = j.mensagem || "Adicionada.";
-    document.getElementById("novaPalavra").value = "";
-    estatisticas(); // Atualizar contadores na sessão 3
-  } else {
-    msg.textContent = j.mensagem || j.error || "Erro ao adicionar.";
-  }
-}
+    async function analisar(){
+      const texto = document.getElementById("texto").value;
+      const saida = document.getElementById("saida");
+      saida.textContent = "Analisando...";
+      const res = await fetch(base + "/analisar", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({texto})
+      });
+      if(!res.ok){
+        const e = await res.json().catch(()=>({error:"Erro"}));
+        saida.textContent = "Erro: " + (e.error || e.mensagem || res.statusText);
+        return;
+      }
+      const j = await res.json();
+      let text = "";
+      text += "Texto analisado: \"" + j.texto + "\"\n\n";
+      text += "Positivas encontradas: " + j.pos_count + "\n";
+      text += "Positivas totais: " + j.pos_total + "\n";
+      text += "Negativas encontradas: " + j.neg_count + "\n";
+      text += "Negativas totais: " + j.neg_total + "\n";
+      text += "Palavras de intensidade: " + j.intens_count + "\n\n";
+      if(j.pos_list && j.pos_list.length) text += "👍 Positivas: " + j.pos_list.join(", ") + "\n";
+      if(j.neg_list && j.neg_list.length) text += "👎 Negativas: " + j.neg_list.join(", ") + "\n";
+      if(j.neg_list && j.intens_list.length) text += "🤏 Intensidade: " + j.intens_list.join(", ") + "\n";
+      text += "SENTIMENTO: " + j.sentimento.toUpperCase();
+      saida.innerHTML = '<div class="result">'+text+'</div>';
+    }
 
-async function estatisticas(){
-  const el = document.getElementById("estatisticas");
-  el.textContent = "Buscando...";
-  const res = await fetch(base + "/estatisticas");
-  if(!res.ok){ el.textContent = "Erro ao obter estatísticas."; return; }
-  const j = await res.json();
-  el.innerHTML = `
-    <div class="muted">Total positivas: ${j.total_positivas}</div>
-    <div class="muted">Total negativas: ${j.total_negativas}</div>
-    <div class="muted">Total intensidade: ${j.total_intensidade}</div>
-    <div class="muted">Total geral: ${j.total_geral}</div>
-  `;
-}
+    async function adicionar(){
+      const palavra = document.getElementById("novaPalavra").value.trim();
+      const tipo = document.getElementById("tipo").value;
+      const msg = document.getElementById("msgAdicionar");
+      if(!palavra){
+        msg.textContent = "Digite uma palavra.";
+        return;
+      }
+      msg.textContent = "Enviando...";
+      const res = await fetch(base + "/adicionar", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({palavra, tipo})
+      });
+      const j = await res.json().catch(()=>({mensagem:"Resposta inválida"}));
+      if(res.ok){
+        msg.textContent = j.mensagem || "Adicionada.";
+        document.getElementById("novaPalavra").value = "";
+        estatisticas(); // Atualizar contadores na sessão 3
+      } else {
+        msg.textContent = j.mensagem || j.error || "Erro ao adicionar.";
+      }
+    }
 
-document.getElementById("btnAnalisar").addEventListener("click", analisar);
-document.getElementById("btnAdicionar").addEventListener("click", adicionar);
-document.getElementById("btnEstat").addEventListener("click", estatisticas);
+    async function estatisticas(){
+      const el = document.getElementById("estatisticas");
+      el.textContent = "Buscando...";
+      const res = await fetch(base + "/estatisticas");
+      if(!res.ok){ el.textContent = "Erro ao obter estatísticas."; return; }
+      const j = await res.json();
+      el.innerHTML = `
+        <div class="muted">Total positivas: ${j.total_positivas}</div>
+        <div class="muted">Total negativas: ${j.total_negativas}</div>
+        <div class="muted">Total intensidade: ${j.total_intensidade}</div>
+        <div class="muted">Total geral: ${j.total_geral}</div>
+      `;
+    }
 
-// Carregar estatísticas iniciais
-estatisticas();
-</script>
-</body>
+    document.getElementById("btnAnalisar").addEventListener("click", analisar);
+    document.getElementById("btnAdicionar").addEventListener("click", adicionar);
+    document.getElementById("btnEstat").addEventListener("click", estatisticas);
+
+    // Carregar estatísticas iniciais
+    estatisticas();
+    </script>
+  </body>
 </html>
